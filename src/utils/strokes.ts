@@ -1,0 +1,69 @@
+export interface CharacterStrokeData {
+  strokes: string[];
+  medians: number[][][];
+}
+
+const cache = new Map<string, CharacterStrokeData | null>();
+
+export async function loadStrokeData(char: string): Promise<CharacterStrokeData | null> {
+  if (cache.has(char)) return cache.get(char)!;
+
+  try {
+    // hanzi-writer-data uses character-named JSON files
+    const data = await import(`../../node_modules/hanzi-writer-data/${char}.json`);
+    const result: CharacterStrokeData = {
+      strokes: data.strokes,
+      medians: data.medians,
+    };
+    cache.set(char, result);
+    return result;
+  } catch {
+    cache.set(char, null);
+    return null;
+  }
+}
+
+export interface StrokeFrame {
+  completedStrokes: string[];
+  currentStroke: string;
+  frameNumber: number;
+  totalStrokes: number;
+}
+
+export function generateStrokeFrames(
+  strokeData: CharacterStrokeData,
+  maxFrames: number,
+): StrokeFrame[] {
+  const { strokes } = strokeData;
+  const total = strokes.length;
+
+  if (total <= maxFrames) {
+    return strokes.map((stroke, i) => ({
+      completedStrokes: strokes.slice(0, i),
+      currentStroke: stroke,
+      frameNumber: i + 1,
+      totalStrokes: total,
+    }));
+  }
+
+  // More strokes than maxFrames: show first (maxFrames - 1) then final complete character
+  const frames: StrokeFrame[] = [];
+  for (let i = 0; i < maxFrames - 1; i++) {
+    frames.push({
+      completedStrokes: strokes.slice(0, i),
+      currentStroke: strokes[i],
+      frameNumber: i + 1,
+      totalStrokes: total,
+    });
+  }
+
+  // Final frame shows the complete character
+  frames.push({
+    completedStrokes: strokes.slice(0, total - 1),
+    currentStroke: strokes[total - 1],
+    frameNumber: total,
+    totalStrokes: total,
+  });
+
+  return frames;
+}
