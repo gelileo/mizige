@@ -6,11 +6,11 @@ import { exportToPdf } from './utils/pdf';
 
 function App() {
   const [text, setText] = useState('黄河之水天上来');
-  const [traceCells, setTraceCells] = useState(2);
-  const [blankCells, setBlankCells] = useState(4);
+  const [traceCells, setTraceCells] = useState(3);
+  const [blankCells, setBlankCells] = useState(5);
   const [showPinyin, setShowPinyin] = useState(true);
   const [showStrokeOrder, setShowStrokeOrder] = useState(true);
-  const [maxStrokeFrames, setMaxStrokeFrames] = useState(8);
+  const [maxStrokeFrames, setMaxStrokeFrames] = useState(11);
   const [cellSize, setCellSize] = useState(72);
   const [gridType, setGridType] = useState<'mizige' | 'tianzige'>('mizige');
   const [paperSize, setPaperSize] = useState<'a4' | 'letter'>('a4');
